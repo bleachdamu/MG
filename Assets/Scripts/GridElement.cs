@@ -5,7 +5,7 @@ using UnityEngine;
 public class GridElement : MonoBehaviour, IGridElement
 {
     [SerializeField]
-    private Renderer renderer;
+    public Renderer renderer;
 
     public Bounds GetBounds()
     {

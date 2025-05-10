@@ -32,7 +32,8 @@ public interface IGridElement
 public class GridGenerator : MonoBehaviour
 {
     #region Serialized Fields
-
+    [SerializeField]
+    private GameObject gridBg;
     [SerializeField]
     private GridElement gridObject;
     [SerializeField]
@@ -60,18 +61,7 @@ public class GridGenerator : MonoBehaviour
     #endregion
 
     public List<GridElement> gridElements = new List<GridElement>();
-    private Vector3 gridElementBounds;
-    private Vector3 gridElementNewScale;
-
-    public void Start()
-    {
-        Initialize();
-    }
-
-    public void Initialize()
-    {
-        gridElementBounds = GetGridElementSize(gridObject);
-    }
+    private Vector3 originalScale;
 
     /// <summary>
     /// Context menu editor method to generate the grid editor time.
@@ -79,7 +69,7 @@ public class GridGenerator : MonoBehaviour
     [ContextMenu("GenerateGrid")]
     public void GenerateGrid()
     {
-        Initialize();
+        gridBg.transform.localScale = gridSize;
         ResetGrid();
         GenerateGrid(row,column);
     }
@@ -87,34 +77,43 @@ public class GridGenerator : MonoBehaviour
     /// <summary>
     /// Generate grid of given row and column.
     /// </summary>
-    public void GenerateGrid(int row,int coloumn)
+    public void GenerateGrid(int row, int coloumn)
     {
-        gridElementNewScale = GetScaleForGridElement();
-        Debug.Log("Grid Element new scale is :" + gridElementNewScale);
-        gridObject.transform.localScale = gridElementNewScale;
+        originalScale = gridObject.transform.localScale;
 
-        float totalXSize = CalculateXPivot(GetGridElementSize(gridObject).x) * row;
-        float totalYSize = CalculateYPivot(GetGridElementSize(gridObject).y) * coloumn;
+        Vector2 scaleForGridElement = GetScaleForGridElement();
+        gridObject.transform.localScale = scaleForGridElement;
 
+        float xSize = GetGridObjectBounds().x;
+        float ySize = GetGridObjectBounds().y;
+
+        float xPivot = CalculateXPivot();
+        float yPivot = CalculateYPivot();
+
+        Vector2 pivotOffset = new Vector2(
+            (CalculateXPivot() * row) - xPivot, 
+            (CalculateYPivot() * coloumn) - yPivot
+        );
         Vector2 position = Vector2.zero;
+
         for (int i = 0; i < row; i++)
         {
-            for(int j = 0; j < coloumn; j++)
+            for (int j = 0; j < coloumn; j++)
             {
-                GridElement gridElement =  Instantiate(gridObject, new Vector3(i, 0, j), Quaternion.identity);
-                gridElement.SetScale(gridElementNewScale);
-                gridElements.Add(gridElement);
+                GridElement grid = Instantiate(gridObject, new Vector3(i, 0, j), Quaternion.identity);
+                gridElements.Add(grid);
 
                 //set the obejct position in grid based on the index.
-                position = (i * (GetGridElementSize(gridElement).x + xSpacing) * Vector2.right) + (j * (GetGridElementSize(gridElement).y + ySpacing) * Vector2.up);
+                position = (i * (xSize + xSpacing) * Vector2.right) + (j * (ySize + ySpacing) * Vector2.up);
                 //Deducting the pivot values so that it can be arranged based on given pivot.
-                position -= new Vector2(totalXSize - CalculateXPivot(GetGridElementSize(gridElement).x), totalYSize - CalculateYPivot(GetGridElementSize(gridElement).y));
+                position -= pivotOffset;
 
-                gridElement.transform.localPosition = position;
-                gridElement.transform.SetParent(gridParent);
-                gridElement.name = "Grid" + i + j;
+                grid.transform.SetParent(gridParent);
+                grid.transform.localPosition = position;
+                grid.name = "Grid" + i + j;
             }
         }
+        gridObject.SetScale(originalScale);
     }
 
     /// <summary>
@@ -123,33 +122,42 @@ public class GridGenerator : MonoBehaviour
     /// <returns></returns>
     private Vector2 GetScaleForGridElement()
     {
+
         if (scaleToFitInGrid)
         {
-            float xScale = gridElementBounds.x;
-            float yScale = gridElementBounds.y;
+            float xSize = GetGridObjectBounds().x;
+            float ySize = GetGridObjectBounds().y;
 
-            float xAspectRatio = xScale / yScale;
-            float yAspectRatio = yScale / xScale;
+            float xAspectRatio = gridObject.transform.localScale.x / gridObject.transform.localScale.y;
+            float yAspectRatio = gridObject.transform.localScale.y / gridObject.transform.localScale.x;
 
-            if (((yScale + ySpacing) * column) / gridSize.y > 1)
+            //By default shrinking height to fit into grid height.
             {
-                yScale = ((gridSize.y - (ySpacing * column)) / column);
+                ySize = (gridSize.y - (ySpacing * column)) / (column * ySize);
 
-                xScale = yScale * xAspectRatio;
+                xSize = ySize * xAspectRatio;
             }
 
-            if (((xScale + xSpacing) * row) / gridSize.x > 1)
-            {
-                xScale = ((gridSize.x - (xSpacing * row)) / row);
+            //Storing the original size width for checking.
+            float newXScale = GetGridObjectBounds().x;
 
-                yScale = xScale * yAspectRatio;
+            //Applying the scale to the grid object to get new bounds.
+            gridObject.transform.localScale = new Vector3(xSize, ySize);
+
+            // Post shrinking height checking if the new width is greater than the grid width.
+            // If yes shrinking the width to fit into grid width.
+            if (((GetGridObjectBounds().x + xSpacing) * row) / gridSize.x > 1)
+            {
+                xSize = (gridSize.x - (xSpacing * row)) / ( row * newXScale);
+
+                ySize = xSize * yAspectRatio;
             }
 
-            return new Vector2(xScale, yScale);
+            return new Vector2(xSize, ySize);
         }
         else
         {
-            return gridElementBounds;
+            return GetGridObjectBounds();
         }
 
     }
@@ -158,29 +166,27 @@ public class GridGenerator : MonoBehaviour
     /// Calculate the pivot value based on the given grid element size and spacing.
     /// </summary>
     /// <returns></returns>
-    private float CalculateXPivot(float xSize)
+    private float CalculateXPivot()
     {
-        return (xSize + xSpacing) * pivotX;
+        return (GetGridObjectBounds().x + xSpacing) * pivotX;
     }
 
     /// <summary>
     /// Calculate the pivot value based on the given grid element size and spacing.
     /// </summary>
     /// <returns></returns>
-    private float CalculateYPivot(float ySize)
+    private float CalculateYPivot()
     {
-        return (ySize + ySpacing) * pivotY;
+        return (GetGridObjectBounds().y + ySpacing) * pivotY;
     }
-
 
     /// <summary>
     /// Get the grid element size based on the given grid object.
     /// </summary>
     /// <returns></returns>
-    private Vector2 GetGridElementSize(GridElement gridElement)
+    private Vector2 GetGridObjectBounds()
     {
-        Debug.Log("bounds is :" + gridElement.GetBounds().size);
-        return gridElement.GetBounds().size;
+        return gridObject.GetBounds().size;
     }
 
     /// <summary>
