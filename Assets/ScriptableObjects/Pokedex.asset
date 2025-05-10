@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 259a3ba1ca83db446a6ef1e1dd99d29f, type: 3}
+  m_Name: Pokedex
+  m_EditorClassIdentifier: 
+  pokemonDatas:
+  - pokemonName: Zoobat
+    pokemonId: 1
+    pokemonSprite: {fileID: 21300000, guid: 799b60d4f3b96254a80d6e91b40cabf4, type: 3}
+  - pokemonName: Vulpix
+    pokemonId: 2
+    pokemonSprite: {fileID: 21300000, guid: d0e1b6481ce5d8c44b7afca7dca3e698, type: 3}
+  - pokemonName: Squirtle
+    pokemonId: 3
+    pokemonSprite: {fileID: 21300000, guid: 82ead540e1a3f2040983fb6f99d5963b, type: 3}
+  - pokemonName: Pikachu
+    pokemonId: 4
+    pokemonSprite: {fileID: 21300000, guid: 77ecaf5bac3aa7a4a8d3de2f3f5bcb54, type: 3}
+  - pokemonName: Jigglypuff
+    pokemonId: 5
+    pokemonSprite: {fileID: 21300000, guid: ab6d8df03dd8b314aad17e9f395408c3, type: 3}
+  - pokemonName: Infernape
+    pokemonId: 6
+    pokemonSprite: {fileID: 21300000, guid: 35a0b549ff1458645be8e4ce0a546f2c, type: 3}
+  - pokemonName: Diklet
+    pokemonId: 7
+    pokemonSprite: {fileID: 21300000, guid: c3d1f38528d8f334ba388781e91ec15e, type: 3}
+  - pokemonName: Chimchar
+    pokemonId: 8
+    pokemonSprite: {fileID: 21300000, guid: 90aa74f633fe48a489f450e49f09b82e, type: 3}
+  - pokemonName: Charmander
+    pokemonId: 9
+    pokemonSprite: {fileID: 21300000, guid: 147a153b8c473974493fd4906bbcbab1, type: 3}
+  - pokemonName: Charmelion
+    pokemonId: 10
+    pokemonSprite: {fileID: 21300000, guid: 6686a5687eddaaf4aaf9bccb83d8dbfc, type: 3}
+  - pokemonName: Bulbasor
+    pokemonId: 11
+    pokemonSprite: {fileID: 21300000, guid: 2b7418b71069333428299777cea8dd5d, type: 3}

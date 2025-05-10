@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Events;
 
 public interface IGridElement
 {
@@ -57,7 +58,6 @@ public class GridGenerator : MonoBehaviour
     private float pivotX;
     [SerializeField]
     private float pivotY;
-
     #endregion
 
     public List<GridElement> gridElements = new List<GridElement>();
@@ -69,16 +69,25 @@ public class GridGenerator : MonoBehaviour
     [ContextMenu("GenerateGrid")]
     public void GenerateGrid()
     {
-        gridBg.transform.localScale = gridSize;
-        ResetGrid();
-        GenerateGrid(row,column);
+        //GenerateGrid(out gridElements);
     }
 
     /// <summary>
     /// Generate grid of given row and column.
     /// </summary>
-    public void GenerateGrid(int row, int coloumn)
+    public void GenerateGrid(out List<GridElement> outGridElements)
     {
+        gridBg.transform.localScale = gridSize;
+        ResetGrid();
+        GenerateGrid(row, column, out outGridElements);
+    }
+
+    /// <summary>
+    /// Generate grid of given row and column.
+    /// </summary>
+    public void GenerateGrid(int row, int coloumn,out List<GridElement> outGridElements)
+    {
+        List<GridElement> generatedElements = new List<GridElement>();
         originalScale = gridObject.transform.localScale;
 
         Vector2 scaleForGridElement = GetScaleForGridElement();
@@ -101,7 +110,7 @@ public class GridGenerator : MonoBehaviour
             for (int j = 0; j < coloumn; j++)
             {
                 GridElement grid = Instantiate(gridObject, new Vector3(i, 0, j), Quaternion.identity);
-                gridElements.Add(grid);
+                generatedElements.Add(grid);
 
                 //set the obejct position in grid based on the index.
                 position = (i * (xSize + xSpacing) * Vector2.right) + (j * (ySize + ySpacing) * Vector2.up);
@@ -113,6 +122,7 @@ public class GridGenerator : MonoBehaviour
                 grid.name = "Grid" + i + j;
             }
         }
+        outGridElements = generatedElements;
         gridObject.SetScale(originalScale);
     }
 
