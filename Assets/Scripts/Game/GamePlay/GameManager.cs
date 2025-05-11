@@ -10,6 +10,8 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private GridGenerator gridGenerator;
     [SerializeField]
+    private PokemonDataPopulater pokemonDataPopulater;
+    [SerializeField]
     private CardComparisionHandler cardComparisionHandler;
     [SerializeField]
     private PointsHandler pointsHandler;
@@ -42,7 +44,7 @@ public class GameManager : MonoBehaviour
         gridGenerator.Initialize();
 
         saveData = saveAndLoadSaveDataHandler.LoadData();
-        if (saveData != null && saveData.saveDataExists == true)
+        if (saveData != null)
         {
             layoutParent.SetActive(false);
             LoadGame();
@@ -64,11 +66,10 @@ public class GameManager : MonoBehaviour
         saveData = new SaveData();
         //saving grid data
         saveData.gridSaveData = gridGenerator.GridData;
-        saveData.saveDataExists = true;
 
         cards = ConverGridElementToCard(ref gridElements);
-        SelectRandomPokemonDataAndSet(ref cards);
-        cardComparisionHandler.Initialize(cards, OnCardMatching,saveData);
+        pokemonDataPopulater.Initialize(saveData, ref cards);
+        cardComparisionHandler.Initialize(ref cards, OnCardMatching,saveData);
 
         saveAndLoadSaveDataHandler.SaveData(saveData);
         pointsHandler.Initialize(saveData);
@@ -81,47 +82,10 @@ public class GameManager : MonoBehaviour
         gridGenerator.GenerateGrid(saveData.gridSaveData,out gridElements);
 
         cards = ConverGridElementToCard(ref gridElements);
-        LoadPokemonCardData(ref cards);
-        cardComparisionHandler.Initialize(cards, OnCardMatching, saveData);
+
+        pokemonDataPopulater.Initialize(saveData, ref cards);
+        cardComparisionHandler.Initialize(ref cards, OnCardMatching, saveData);
         pointsHandler.Initialize(saveData);
-    }
-
-    /// <summary>
-    /// Select random Pokemon data from the Pokedex and set it to the cards.
-    /// </summary>
-    private void SelectRandomPokemonDataAndSet(ref List<Card> cards)
-    {
-        matcheableCardsCount = cards.Count / 2;
-        List<PokemonData> randomPokemonData = pokedex.GetRandomPokemonData(matcheableCardsCount);
-        List<Card> originalOrder = new List<Card>(cards);
-        cards.Shuffle();
-        int pokeIndex = 0;
-        int cardIndex = 0;
-        while(pokeIndex < randomPokemonData.Count)
-        {
-            cards[cardIndex].SetPokemonData(randomPokemonData[pokeIndex]);
-            cards[cardIndex+1].SetPokemonData(randomPokemonData[pokeIndex]);
-            cardIndex = cardIndex + 2;
-            pokeIndex++;
-        }
-        SaveGeneratedPokemonCardData(originalOrder);
-    }
-
-    private void SaveGeneratedPokemonCardData(List<Card> cards)
-    {
-        for (int i = 0; i < cards.Count; i++)
-        {
-            saveData.generatedPokemonDatas.Add(cards[i].PokemonData);
-        }
-    }
-
-    private void LoadPokemonCardData(ref List<Card> cards)
-    {
-        matcheableCardsCount = cards.Count / 2;
-        for (int i = 0; i < cards.Count; i++)
-        {
-            cards[i].SetPokemonData(saveData.generatedPokemonDatas[i]);
-        }
     }
 
     private List<Card> ConverGridElementToCard(ref List<GridElement> gridElements)

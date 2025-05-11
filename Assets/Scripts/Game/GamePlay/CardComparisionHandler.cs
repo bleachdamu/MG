@@ -24,7 +24,7 @@ public class CardComparisionHandler : MonoBehaviour
     /// <summary>
     /// Initialize the CardComparisionHandler with a list of cards.
     /// </summary>
-    public void Initialize(List<Card> cards,Action<int> OnCardMatching,SaveData saveData)
+    public void Initialize(ref List<Card> cards,Action<int> OnCardMatching,SaveData saveData)
     {
         this.saveData = saveData;
         this.OnCardMatching = OnCardMatching;
