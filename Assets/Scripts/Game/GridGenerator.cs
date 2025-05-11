@@ -30,6 +30,32 @@ public interface IGridElement
     void SetPosition(Vector3 position);
 }
 
+public interface IPoolObject
+{
+    public void OnGetFromPool();
+    public void OnReleaseToPool();
+}
+
+[System.Serializable]
+public class GridData
+{
+    public int row;
+    public int column;
+    public float xSpacing;
+    public float ySpacing;
+    public float pivotX;
+    public float pivotY;
+    public GridData(int row, int column, float xSpacing, float ySpacing, float pivotX, float pivotY)
+    {
+        this.row = row;
+        this.column = column;
+        this.xSpacing = xSpacing;
+        this.ySpacing = ySpacing;
+        this.pivotX = pivotX;
+        this.pivotY = pivotY;
+    }
+}
+
 public class GridGenerator : MonoBehaviour
 {
     #region Serialized Fields
@@ -39,6 +65,8 @@ public class GridGenerator : MonoBehaviour
     private GridElement gridObject;
     [SerializeField]
     private Transform gridParent;
+    [SerializeField]
+    private Transform poolParent;
     [SerializeField]
     private Vector2 gridSize;
     [SerializeField]
@@ -62,6 +90,9 @@ public class GridGenerator : MonoBehaviour
 
     public List<GridElement> gridElements = new List<GridElement>();
     private Vector3 originalScale;
+    private GridData gridData;
+
+    public GridData GridData { get => gridData; }
 
     /// <summary>
     /// Context menu editor method to generate the grid editor time.
@@ -72,6 +103,23 @@ public class GridGenerator : MonoBehaviour
         //GenerateGrid(out gridElements);
     }
 
+    public void Initialize()
+    {
+        ObjectPoolManager.Instance.Initialize(gridObject);
+    }    
+
+    public void GenerateGrid(GridData gridData,out List<GridElement> outGridElements)
+    {
+        row = gridData.row;
+        column = gridData.column;
+        xSpacing = gridData.xSpacing;
+        ySpacing = gridData.ySpacing;
+        pivotX = gridData.pivotX;
+        pivotY = gridData.pivotY;
+
+        GenerateGrid(out outGridElements);
+    }
+
     /// <summary>
     /// Generate grid of given row and column.
     /// </summary>
@@ -79,7 +127,13 @@ public class GridGenerator : MonoBehaviour
     {
         gridBg.transform.localScale = gridSize;
         ResetGrid();
+        gridData = new GridData(row, column, xSpacing, ySpacing, pivotX, pivotY);
         GenerateGrid(row, column, out outGridElements);
+    }
+
+    private GridElement GetGridElementFromPool()
+    {
+        return ObjectPoolManager.Instance.Pool.Get();
     }
 
     /// <summary>
@@ -87,7 +141,6 @@ public class GridGenerator : MonoBehaviour
     /// </summary>
     public void GenerateGrid(int row, int coloumn,out List<GridElement> outGridElements)
     {
-        List<GridElement> generatedElements = new List<GridElement>();
         originalScale = gridObject.transform.localScale;
 
         Vector2 scaleForGridElement = GetScaleForGridElement();
@@ -109,8 +162,10 @@ public class GridGenerator : MonoBehaviour
         {
             for (int j = 0; j < coloumn; j++)
             {
-                GridElement grid = Instantiate(gridObject, new Vector3(i, 0, j), Quaternion.identity);
-                generatedElements.Add(grid);
+                GridElement grid = GetGridElementFromPool();
+                grid.transform.localPosition = new Vector3(i, 0, j);
+                grid.transform.localScale = scaleForGridElement;
+                gridElements.Add(grid);
 
                 //set the obejct position in grid based on the index.
                 position = (i * (xSize + xSpacing) * Vector2.right) + (j * (ySize + ySpacing) * Vector2.up);
@@ -120,9 +175,10 @@ public class GridGenerator : MonoBehaviour
                 grid.transform.SetParent(gridParent);
                 grid.transform.localPosition = position;
                 grid.name = "Grid" + i + j;
+                grid.gridPosition = new Vector2(i, j);
             }
         }
-        outGridElements = generatedElements;
+        outGridElements = gridElements;
         gridObject.SetScale(originalScale);
     }
 
@@ -206,11 +262,8 @@ public class GridGenerator : MonoBehaviour
     {
         for (int i = 0; i < gridElements.Count; i++)
         {
-#if UNITY_EDITOR
-            DestroyImmediate(gridElements[i].GetGameObject());
-#else
-            Destroy(gridElements[i].GetGameObject());
-#endif
+            ObjectPoolManager.Instance.Pool.Release(gridElements[i]);
+            gridElements[i].transform.SetParent(ObjectPoolManager.Instance.transform);
         }
         gridElements.Clear();
     }

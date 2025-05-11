@@ -3,12 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Card : GridElement, IClickable , ICardComparer
+public class Card : GridElement, IClickable, ICardComparer
 {
     [SerializeField]
     private SpriteRenderer cardFrontRenderer;
-    [SerializeField]
-    private Vector3 defaultRotation;
     [SerializeField]
     private AnimationCurve rotationCurve;
     [SerializeField]
@@ -20,12 +18,14 @@ public class Card : GridElement, IClickable , ICardComparer
     //Card flipped bool will indicate wether its front face or not
     public Action<Card> CardFrontFacing;
 
-    private int cardId;
+    private PokemonData pokemonData;
 
-    public int cardID
+    public PokemonData PokemonData
     {
-        get { return cardId; }
+        get { return pokemonData; }
     }
+
+    public int CardID => pokemonData.pokemonId;
 
     /// <summary>
     /// Set the pokemon data.
@@ -33,7 +33,7 @@ public class Card : GridElement, IClickable , ICardComparer
     public void SetPokemonData(PokemonData pokemonData)
     {
         canFlip = true;
-        cardId = pokemonData.pokemonId;
+        this.pokemonData = pokemonData;
         cardFrontRenderer.sprite = pokemonData.pokemonSprite;
     }
 
@@ -66,8 +66,22 @@ public class Card : GridElement, IClickable , ICardComparer
     {
         if (flipCoroutine == null && canFlip)
         {
+            AudioHandler.Instance.PlayOneShot(1);
             flipCoroutine = StartCoroutine(Flip(!frontFace, flipDuration));
         }
+    }
+
+    public void CardOpened()
+    {
+        transform.rotation = Quaternion.Euler(0, 180f, 0);
+        canFlip = false;
+    }
+
+    public void CardClosed()
+    {
+        transform.rotation = Quaternion.Euler(0, 0f, 0);
+        canFlip = false;
+        frontFace = true;
     }
 
     /// <summary>
@@ -102,7 +116,7 @@ public class Card : GridElement, IClickable , ICardComparer
     /// <returns></returns>
     public bool CompareCard(int cardID)
     {
-        bool isSame = this.cardId == cardID;
+        bool isSame = CardID == cardID;
         if(isSame == false)
         {
             FlipCard();
@@ -112,5 +126,18 @@ public class Card : GridElement, IClickable , ICardComparer
             canFlip = false;
         }
         return isSame;
+    }
+
+    public override void OnGetFromPool()
+    {
+        CardClosed();
+        base.OnGetFromPool();
+    }
+
+    public override void OnReleaseToPool()
+    {
+        CardClosed();
+        transform.localScale = Vector3.one;
+        base.OnReleaseToPool();
     }
 }

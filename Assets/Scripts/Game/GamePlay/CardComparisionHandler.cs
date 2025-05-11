@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Burst.Intrinsics;
 using UnityEngine;
 
 /// <summary>
@@ -8,7 +9,7 @@ using UnityEngine;
 /// </summary>
 public interface ICardComparer
 {
-    public int cardID { get; }
+    public int CardID { get; }
     public bool CompareCard(int cardId);
 }
 
@@ -16,16 +17,33 @@ public class CardComparisionHandler : MonoBehaviour
 {
     private List<Card> cards;
     private Queue<Card> SelectedCards = new Queue<Card>();
+    private Action<int> OnCardMatching;
+    private int combo = 0;
+    private SaveData saveData;
 
     /// <summary>
     /// Initialize the CardComparisionHandler with a list of cards.
     /// </summary>
-    public void Initialize(List<Card> cards)
+    public void Initialize(List<Card> cards,Action<int> OnCardMatching,SaveData saveData)
     {
+        this.saveData = saveData;
+        this.OnCardMatching = OnCardMatching;
         this.cards = cards;
         for(int i=0;i<cards.Count;i++)
         {
             cards[i].CardFrontFacing += OnCardSelected;
+        }
+        LoadComparedData();
+    }
+
+    /// <summary>
+    /// Load the previously matched cards from save data.
+    /// </summary>
+    private void LoadComparedData()
+    {
+        for (int i = 0; i < saveData.matchedPositions.Count; i++)
+        {
+            cards.Find(x => x.gridPosition == saveData.matchedPositions[i]).CardOpened();
         }
     }
 
@@ -47,14 +65,21 @@ public class CardComparisionHandler : MonoBehaviour
         {
             Card card1 = SelectedCards.Dequeue();
             Card card2 = SelectedCards.Dequeue();
-            if(card1.CompareCard(card2.cardID))
+            if(card1.CompareCard(card2.CardID))
             {
+                saveData.matchedPositions.Add(card1.gridPosition);
+                saveData.matchedPositions.Add(card2.gridPosition);
+                combo++;
+                OnCardMatching(combo);
+                AudioHandler.Instance.PlayOneShot(2);
                 Debug.Log("Cards are same");
             }else
             {
+                combo = 0;
+                AudioHandler.Instance.PlayOneShot(3);
                 Debug.Log("Cards are not same");
             }
-            card2.CompareCard(card1.cardID);
+            card2.CompareCard(card1.CardID);
             CompareCards();
         }
     }

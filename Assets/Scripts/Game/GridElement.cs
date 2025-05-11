@@ -2,10 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GridElement : MonoBehaviour, IGridElement
+public class GridElement : MonoBehaviour, IGridElement, IPoolObject
 {
     [SerializeField]
     public Renderer renderer;
+    public Vector2 gridPosition;
 
     public Bounds GetBounds()
     {
@@ -25,5 +26,15 @@ public class GridElement : MonoBehaviour, IGridElement
     public void SetPosition(Vector3 position)
     {
         transform.position = position;
+    }
+
+    public virtual void OnGetFromPool()
+    {
+        gameObject.SetActive(true);
+    }
+
+    public virtual void OnReleaseToPool()
+    {
+        gameObject.SetActive(false);
     }
 }
