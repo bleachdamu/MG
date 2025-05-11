@@ -27,7 +27,7 @@ public class GridElementPool : MonoBehaviour
         if (m_Pool == null)
         {
             this.toCreateGameObject = toCreateGameObject;
-            m_Pool = new ObjectPool<GridElement>(CreatePooledObject, OnGetFromPool, OnReleaseToPool, collectionCheck:false, defaultCapacity:10);
+            m_Pool = new ObjectPool<GridElement>(CreatePooledObject, OnGetFromPool, OnReleaseToPool, collectionCheck:true, defaultCapacity:10);
         }
     }
 

@@ -129,7 +129,10 @@ public class GameManager : MonoBehaviour
     private void GameEnded()
     {
         currentMatchCount = 0;
+        matcheableCardsCount = 0;
         pointsHandler.GameEnded();
+        saveData.Reset();
         saveAndLoadSaveDataHandler.DeleteSaveData();
+        cardComparisionHandler.Reset();
     }
 }

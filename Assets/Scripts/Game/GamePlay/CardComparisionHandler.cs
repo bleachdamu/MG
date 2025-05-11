@@ -52,7 +52,16 @@ public class CardComparisionHandler : MonoBehaviour
     /// </summary>
     public void OnCardSelected(Card card)
     {
-        SelectedCards.Enqueue(card);
+        if (SelectedCards.Count > 0 )
+        {
+            if (card != SelectedCards.Peek())
+            {
+                SelectedCards.Enqueue(card);
+            }
+        }else
+        {
+            SelectedCards.Enqueue(card);
+        }
         CompareCards();
     }
 
@@ -82,5 +91,13 @@ public class CardComparisionHandler : MonoBehaviour
             }
             CompareCards();
         }
+    }
+
+    /// <summary>
+    /// Reset the card comparision handler.
+    /// </summary>
+    public void Reset()
+    {
+        SelectedCards.Clear();
     }
 }

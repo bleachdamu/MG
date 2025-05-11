@@ -28,11 +28,6 @@ public class GridElement : MonoBehaviour, IGridElement, IPoolObject
         transform.position = position;
     }
 
-    protected void ReleaseGridElementToPool()
-    {
-        GridElementPool.Instance.Pool.Release(this);
-    }
-
     public virtual void OnGetFromPool()
     {
         gameObject.SetActive(true);

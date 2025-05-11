@@ -12,14 +12,15 @@ public class Card : GridElement, IClickable, ICardComparer
     private AnimationCurve rotationCurve;
     [SerializeField]
     private float flipDuration = 0.5f;
+
+
     private bool canFlip = true;
     private bool frontFace = false;
     private Coroutine flipCoroutine = null;
-
-    //Card flipped bool will indicate wether its front face or not
-    public Action<Card> CardFrontFacing;
-
     private PokemonData pokemonData;
+
+
+    public Action<Card> CardFrontFacing;
 
     public PokemonData PokemonData
     {
@@ -34,17 +35,20 @@ public class Card : GridElement, IClickable, ICardComparer
     public void SetPokemonData(PokemonData pokemonData,float visibleTime)
     {
         canFlip = true;
+        frontFace = true;
         this.pokemonData = pokemonData;
         cardFrontRenderer.sprite = pokemonData.pokemonSprite;
 
         //This is to make sure card is visible for a certain time.
         //Visible time is 0 when we are recovering data.
         frontFace = visibleTime > 0 ? false : true;
+        Debug.Log("Visible time: " + visibleTime);
         if (!frontFace)
         {
             canFlip = false;
             transform.rotation = Quaternion.Euler(0, 180f, 0);
-            StartCoroutine(TimerCoroutine(visibleTime, () => {
+            StartCoroutine(TimerCoroutine(visibleTime, () =>
+            {
                 canFlip = true;
                 FlipCard();
             }));
@@ -78,24 +82,39 @@ public class Card : GridElement, IClickable, ICardComparer
     /// </summary>
     private void FlipCard()
     {
-        if (flipCoroutine == null && canFlip)
+        if (flipCoroutine == null && canFlip && gameObject.activeInHierarchy)
         {
             AudioHandler.Instance.PlayOneShot(1);
             flipCoroutine = StartCoroutine(Flip(!frontFace, flipDuration));
         }
     }
 
-    public void CardMatched()
+    /// <summary>
+    /// Flip the card to fixed face.
+    /// </summary>
+    private void FlipCard(bool frontFace)
     {
-        canFlip = false;
-        ReleaseGridElementToPool();
+        if (flipCoroutine == null && canFlip && gameObject.activeInHierarchy)
+        {
+            AudioHandler.Instance.PlayOneShot(1);
+            flipCoroutine = StartCoroutine(Flip(frontFace, flipDuration));
+        }
     }
 
-    public void CardClosed()
+    public void CardMatched()
     {
         transform.rotation = Quaternion.Euler(0, 0f, 0);
-        canFlip = false;
-        frontFace = false;
+        //Directly calling ReleaseToPool.
+        OnReleaseToPool();
+    }
+
+    public void Reset()
+    {
+        transform.rotation = Quaternion.Euler(0, 0f, 0);
+        canFlip = true;
+        frontFace = true;
+        StopAllCoroutines();
+        flipCoroutine = null;
     }
 
     /// <summary>
@@ -133,7 +152,7 @@ public class Card : GridElement, IClickable, ICardComparer
         transform.rotation = endRot;
         this.frontFace = frontFace;
         flipCoroutine = null;
-        if (frontFace == false)
+        if (endRot.y > 0)
         {
             CardFrontFacing?.Invoke(this);
         }
@@ -148,7 +167,7 @@ public class Card : GridElement, IClickable, ICardComparer
         bool isSame = CardID == card.CardID;
         if(isSame == false)
         {
-            FlipCard();
+            FlipCard(true);
         }
         else
         {
@@ -159,13 +178,12 @@ public class Card : GridElement, IClickable, ICardComparer
 
     public override void OnGetFromPool()
     {
-        CardClosed();
         base.OnGetFromPool();
     }
 
     public override void OnReleaseToPool()
     {
-        CardClosed();
+        Reset();
         transform.localScale = Vector3.one;
         base.OnReleaseToPool();
     }
