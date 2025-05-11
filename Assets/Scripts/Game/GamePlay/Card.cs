@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Card : GridElement, IClickable, ICardComparer
 {
@@ -20,7 +21,7 @@ public class Card : GridElement, IClickable, ICardComparer
     private PokemonData pokemonData;
 
 
-    public Action<Card> CardFrontFacing;
+    public UnityEvent<Card> CardFrontFacing;
 
     public PokemonData PokemonData
     {
@@ -113,6 +114,7 @@ public class Card : GridElement, IClickable, ICardComparer
         transform.rotation = Quaternion.Euler(0, 0f, 0);
         canFlip = true;
         frontFace = true;
+        CardFrontFacing.RemoveAllListeners();
         StopAllCoroutines();
         flipCoroutine = null;
     }
@@ -152,8 +154,9 @@ public class Card : GridElement, IClickable, ICardComparer
         transform.rotation = endRot;
         this.frontFace = frontFace;
         flipCoroutine = null;
-        if (endRot.y > 0)
+        if (frontFace == false)
         {
+            canFlip = false;
             CardFrontFacing?.Invoke(this);
         }
     }
@@ -167,6 +170,7 @@ public class Card : GridElement, IClickable, ICardComparer
         bool isSame = CardID == card.CardID;
         if(isSame == false)
         {
+            canFlip = true;
             FlipCard(true);
         }
         else

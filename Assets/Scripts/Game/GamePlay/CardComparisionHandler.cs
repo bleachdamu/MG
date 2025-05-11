@@ -31,7 +31,7 @@ public class CardComparisionHandler : MonoBehaviour
         this.cards = cards;
         for(int i=0;i<cards.Count;i++)
         {
-            cards[i].CardFrontFacing += OnCardSelected;
+            cards[i].CardFrontFacing.AddListener(OnCardSelected);
         }
         LoadComparedData();
     }
