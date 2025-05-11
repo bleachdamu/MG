@@ -260,7 +260,8 @@ public class GridGenerator : MonoBehaviour
     {
         for (int i = 0; i < gridElements.Count; i++)
         {
-            GridElementPool.Instance.Pool.Release(gridElements[i]);
+            if (gridElements[i].gameObject.activeInHierarchy)
+                GridElementPool.Instance.Pool.Release(gridElements[i]);
         }
         gridElements.Clear();
     }

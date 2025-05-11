@@ -10,7 +10,7 @@ using UnityEngine;
 public interface ICardComparer
 {
     public int CardID { get; }
-    public bool CompareCard(int cardId);
+    public bool CompareCard(ICardComparer cardId);
 }
 
 public class CardComparisionHandler : MonoBehaviour
@@ -65,8 +65,8 @@ public class CardComparisionHandler : MonoBehaviour
         {
             Card card1 = SelectedCards.Dequeue();
             Card card2 = SelectedCards.Dequeue();
-            card1.CompareCard(card2.CardID);
-            if (card2.CompareCard(card1.CardID))
+            card1.CompareCard(card2);
+            if (card2.CompareCard(card1))
             {
                 saveData.matchedPositions.Add(card1.gridPosition);
                 saveData.matchedPositions.Add(card2.gridPosition);

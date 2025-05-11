@@ -143,9 +143,9 @@ public class Card : GridElement, IClickable, ICardComparer
     /// Compare the card with the given card ID.
     /// </summary>
     /// <returns></returns>
-    public bool CompareCard(int cardID)
+    public bool CompareCard(ICardComparer card)
     {
-        bool isSame = CardID == cardID;
+        bool isSame = CardID == card.CardID;
         if(isSame == false)
         {
             FlipCard();
