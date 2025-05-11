@@ -61,11 +61,12 @@ public class CardComparisionHandler : MonoBehaviour
     /// </summary>
     public void CompareCards()
     {
-        if (SelectedCards.Count == 2)
+        if (SelectedCards.Count > 0 && SelectedCards.Count % 2 == 0)
         {
             Card card1 = SelectedCards.Dequeue();
             Card card2 = SelectedCards.Dequeue();
-            if(card1.CompareCard(card2.CardID))
+            card1.CompareCard(card2.CardID);
+            if (card2.CompareCard(card1.CardID))
             {
                 saveData.matchedPositions.Add(card1.gridPosition);
                 saveData.matchedPositions.Add(card2.gridPosition);
@@ -79,7 +80,6 @@ public class CardComparisionHandler : MonoBehaviour
                 AudioHandler.Instance.PlayOneShot(3);
                 Debug.Log("Cards are not same");
             }
-            card2.CompareCard(card1.CardID);
             CompareCards();
         }
     }

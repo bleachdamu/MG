@@ -13,7 +13,7 @@ public class GridElementPool : MonoBehaviour
 
     public IObjectPool<GridElement> Pool { get => m_Pool; set => m_Pool = value; }
 
-    private void Start()
+    private void Awake()
     {
         if (Instance == null)
         {
