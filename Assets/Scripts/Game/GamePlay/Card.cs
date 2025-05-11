@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Card : GridElement, IClickable, ICardComparer
@@ -12,7 +13,7 @@ public class Card : GridElement, IClickable, ICardComparer
     [SerializeField]
     private float flipDuration = 0.5f;
     private bool canFlip = true;
-    private bool frontFace = true;
+    private bool frontFace = false;
     private Coroutine flipCoroutine = null;
 
     //Card flipped bool will indicate wether its front face or not
@@ -30,11 +31,24 @@ public class Card : GridElement, IClickable, ICardComparer
     /// <summary>
     /// Set the pokemon data.
     /// </summary>
-    public void SetPokemonData(PokemonData pokemonData)
+    public void SetPokemonData(PokemonData pokemonData,float visibleTime)
     {
         canFlip = true;
         this.pokemonData = pokemonData;
         cardFrontRenderer.sprite = pokemonData.pokemonSprite;
+
+        //This is to make sure card is visible for a certain time.
+        //Visible time is 0 when we are recovering data.
+        frontFace = visibleTime > 0 ? false : true;
+        if (!frontFace)
+        {
+            canFlip = false;
+            transform.rotation = Quaternion.Euler(0, 180f, 0);
+            StartCoroutine(TimerCoroutine(visibleTime, () => {
+                canFlip = true;
+                FlipCard();
+            }));
+        }
     }
 
     /// <summary>
@@ -71,17 +85,32 @@ public class Card : GridElement, IClickable, ICardComparer
         }
     }
 
-    public void CardOpened()
+    public void CardMatched()
     {
-        transform.rotation = Quaternion.Euler(0, 180f, 0);
         canFlip = false;
+        ReleaseGridElementToPool();
     }
 
     public void CardClosed()
     {
         transform.rotation = Quaternion.Euler(0, 0f, 0);
         canFlip = false;
-        frontFace = true;
+        frontFace = false;
+    }
+
+    /// <summary>
+    /// Coroutine to handle the timer.
+    /// </summary>
+    /// <returns></returns>
+    private IEnumerator TimerCoroutine(float time,Action OnComplete)
+    {
+        float timeTaken = 0f;
+        while (timeTaken < time)
+        {
+            timeTaken += Time.deltaTime;
+            yield return null;
+        }
+        OnComplete();
     }
 
     /// <summary>
@@ -91,7 +120,7 @@ public class Card : GridElement, IClickable, ICardComparer
     private IEnumerator Flip(bool frontFace, float totalDuration)
     {
         Quaternion startRot = transform.rotation;
-        Quaternion endRot = Quaternion.Euler(0, frontFace ? 0 : 180f, 0);
+        Quaternion endRot = Quaternion.Euler(0, frontFace ? 0f : 180f , 0);
         float timeTaken = 0f;
 
         while (timeTaken < totalDuration)
@@ -123,7 +152,7 @@ public class Card : GridElement, IClickable, ICardComparer
         }
         else
         {
-            canFlip = false;
+            CardMatched();
         }
         return isSame;
     }

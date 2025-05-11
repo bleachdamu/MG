@@ -43,7 +43,7 @@ public class CardComparisionHandler : MonoBehaviour
     {
         for (int i = 0; i < saveData.matchedPositions.Count; i++)
         {
-            cards.Find(x => x.gridPosition == saveData.matchedPositions[i]).CardOpened();
+            cards.Find(x => x.gridPosition == saveData.matchedPositions[i]).CardMatched();
         }
     }
 

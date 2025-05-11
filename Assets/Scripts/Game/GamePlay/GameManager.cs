@@ -67,7 +67,7 @@ public class GameManager : MonoBehaviour
         saveData.gridSaveData = gridGenerator.GridData;
 
         cards = ConvertGridElementToCard(ref gridElements);
-        matcheableCardsCount = cards.Count / 2;
+        matcheableCardsCount = cards.Count / 2 - saveData.matchedPositions.Count / 2;
         pokemonDataPopulater.Initialize(saveData, ref cards);
         cardComparisionHandler.Initialize(ref cards, OnCardMatching, saveData);
 
@@ -105,13 +105,12 @@ public class GameManager : MonoBehaviour
     {
         currentMatchCount++;
         pointsHandler.AddPoint(combo);
+        saveAndLoadSaveDataHandler.SaveData(saveData);
         if (currentMatchCount == matcheableCardsCount)
         {
             GameEnded();
             Debug.Log("Game Ended");
         }
-
-        saveAndLoadSaveDataHandler.SaveData(saveData);
     }
 
     /// <summary>

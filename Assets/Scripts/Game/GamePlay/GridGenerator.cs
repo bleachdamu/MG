@@ -66,8 +66,6 @@ public class GridGenerator : MonoBehaviour
     [SerializeField]
     private Transform gridParent;
     [SerializeField]
-    private Transform poolParent;
-    [SerializeField]
     private Vector2 gridSize;
     [SerializeField]
     private bool scaleToFitInGrid = false;
@@ -263,7 +261,6 @@ public class GridGenerator : MonoBehaviour
         for (int i = 0; i < gridElements.Count; i++)
         {
             GridElementPool.Instance.Pool.Release(gridElements[i]);
-            gridElements[i].transform.SetParent(GridElementPool.Instance.transform);
         }
         gridElements.Clear();
     }

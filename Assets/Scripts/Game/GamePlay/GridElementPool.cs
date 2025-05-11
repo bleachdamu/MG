@@ -33,6 +33,7 @@ public class GridElementPool : MonoBehaviour
 
     private void OnReleaseToPool(GridElement poolObject)
     {
+        poolObject.transform.SetParent(transform);
         poolObject.OnReleaseToPool();
     }
 
