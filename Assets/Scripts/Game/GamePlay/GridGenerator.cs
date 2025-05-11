@@ -105,7 +105,7 @@ public class GridGenerator : MonoBehaviour
 
     public void Initialize()
     {
-        ObjectPoolManager.Instance.Initialize(gridObject);
+        GridElementPool.Instance.Initialize(gridObject);
     }    
 
     public void GenerateGrid(GridData gridData,out List<GridElement> outGridElements)
@@ -133,7 +133,7 @@ public class GridGenerator : MonoBehaviour
 
     private GridElement GetGridElementFromPool()
     {
-        return ObjectPoolManager.Instance.Pool.Get();
+        return GridElementPool.Instance.Pool.Get();
     }
 
     /// <summary>
@@ -262,8 +262,8 @@ public class GridGenerator : MonoBehaviour
     {
         for (int i = 0; i < gridElements.Count; i++)
         {
-            ObjectPoolManager.Instance.Pool.Release(gridElements[i]);
-            gridElements[i].transform.SetParent(ObjectPoolManager.Instance.transform);
+            GridElementPool.Instance.Pool.Release(gridElements[i]);
+            gridElements[i].transform.SetParent(GridElementPool.Instance.transform);
         }
         gridElements.Clear();
     }

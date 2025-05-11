@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
 
-public class ObjectPoolManager : MonoBehaviour
+public class GridElementPool : MonoBehaviour
 {
     private IObjectPool<GridElement> m_Pool;
     private GridElement toCreateGameObject;
 
-    public static ObjectPoolManager Instance;
+    public static GridElementPool Instance;
 
     public IObjectPool<GridElement> Pool { get => m_Pool; set => m_Pool = value; }
 
@@ -27,13 +27,8 @@ public class ObjectPoolManager : MonoBehaviour
         if (m_Pool == null)
         {
             this.toCreateGameObject = toCreateGameObject;
-            m_Pool = new ObjectPool<GridElement>(CreatePooledObject, OnGetFromPool, OnReleaseToPool, DestroyPooledObject, false, 10);
+            m_Pool = new ObjectPool<GridElement>(CreatePooledObject, OnGetFromPool, OnReleaseToPool, collectionCheck:false, defaultCapacity:10);
         }
-    }
-
-    private void DestroyPooledObject(GridElement poolObject)
-    {
-        Debug.Log("destroyed from pool");
     }
 
     private void OnReleaseToPool(GridElement poolObject)
@@ -48,7 +43,6 @@ public class ObjectPoolManager : MonoBehaviour
 
     private GridElement CreatePooledObject()
     {
-        Debug.Log("new object created");
         return Instantiate(toCreateGameObject,transform);
     }
 }
