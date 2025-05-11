@@ -33,7 +33,26 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        InitializeGame();
+        CheckAndLoadGameData();
+    }
+
+    /// <summary>
+    /// Check if there is saved game data and load it. If not, initialize a new game.
+    /// </summary>
+    private void CheckAndLoadGameData()
+    {
+        gridGenerator.Initialize();
+
+        saveData = saveAndLoadSaveDataHandler.LoadData();
+        if (saveData != null)
+        {
+            choosenLayoutData = saveData.gridSaveData;
+            InitializeGame();
+        }
+        else
+        {
+            saveData = new SaveData();
+        }
     }
 
     /// <summary>
@@ -41,54 +60,35 @@ public class GameManager : MonoBehaviour
     /// </summary>
     private void InitializeGame()
     {
-        gridGenerator.Initialize();
-
-        saveData = saveAndLoadSaveDataHandler.LoadData();
-        if (saveData != null)
-        {
-            layoutParent.SetActive(false);
-            LoadGame();
-        }
-    }
-
-    public void SetGridAndStartGame(int index)
-    {
         layoutParent.SetActive(false);
-        choosenLayoutData = index < layoutDatas.Count ? layoutDatas[index] : layoutDatas[0];
-        NewGame();
-    }
 
-    private void NewGame()
-    {
         List<GridElement> gridElements = new List<GridElement>();
-
-        gridGenerator.GenerateGrid(choosenLayoutData,out gridElements);
-        saveData = new SaveData();
-        //saving grid data
+        gridGenerator.GenerateGrid(choosenLayoutData, out gridElements);
         saveData.gridSaveData = gridGenerator.GridData;
 
-        cards = ConverGridElementToCard(ref gridElements);
+        cards = ConvertGridElementToCard(ref gridElements);
+        matcheableCardsCount = cards.Count / 2;
         pokemonDataPopulater.Initialize(saveData, ref cards);
-        cardComparisionHandler.Initialize(ref cards, OnCardMatching,saveData);
+        cardComparisionHandler.Initialize(ref cards, OnCardMatching, saveData);
 
         saveAndLoadSaveDataHandler.SaveData(saveData);
         pointsHandler.Initialize(saveData);
     }
 
-    private void LoadGame()
+    /// <summary>
+    /// Set the grid layout and start the game.Called from butto click.
+    /// </summary>
+    public void SetGridAndStartGame(int index)
     {
-        List<GridElement> gridElements = new List<GridElement>();
-
-        gridGenerator.GenerateGrid(saveData.gridSaveData,out gridElements);
-
-        cards = ConverGridElementToCard(ref gridElements);
-
-        pokemonDataPopulater.Initialize(saveData, ref cards);
-        cardComparisionHandler.Initialize(ref cards, OnCardMatching, saveData);
-        pointsHandler.Initialize(saveData);
+        choosenLayoutData = index < layoutDatas.Count ? layoutDatas[index] : layoutDatas[0];
+        InitializeGame();
     }
 
-    private List<Card> ConverGridElementToCard(ref List<GridElement> gridElements)
+    /// <summary>
+    /// Convert the grid elements to cards.
+    /// </summary>
+    /// <returns></returns>
+    private List<Card> ConvertGridElementToCard(ref List<GridElement> gridElements)
     {
         List<Card> cards = new List<Card>();
         for (int i = 0; i < gridElements.Count; i++)
@@ -96,8 +96,11 @@ public class GameManager : MonoBehaviour
             cards.Add(gridElements[i] as Card);
         }
         return cards;
-    }    
+    }
 
+    /// <summary>
+    /// Handle the card matching event.
+    /// </summary>
     private void OnCardMatching(int combo)
     {
         currentMatchCount++;
@@ -111,12 +114,18 @@ public class GameManager : MonoBehaviour
         saveAndLoadSaveDataHandler.SaveData(saveData);
     }
 
+    /// <summary>
+    /// Exit the game and return to the main menu.
+    /// </summary>
     public void ExitToMainMenu()
     {
         GameEnded();
         SceneManager.LoadScene("MainMenu");
     }
 
+    /// <summary>
+    /// Handle the end of the game.
+    /// </summary>
     private void GameEnded()
     {
         currentMatchCount = 0;

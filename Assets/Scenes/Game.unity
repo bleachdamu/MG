@@ -420,6 +420,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gridGenerator: {fileID: 1339924182}
+  pokemonDataPopulater: {fileID: 2010665609}
   cardComparisionHandler: {fileID: 1204942750}
   pointsHandler: {fileID: 7001389}
   saveAndLoadSaveDataHandler: {fileID: 202461456}
@@ -2674,3 +2675,48 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 8764282155924651998, guid: a4434b81b0ea1d145b32ef609af4dba0, type: 3}
   m_PrefabInstance: {fileID: 1893880576}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &2010665607
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2010665608}
+  - component: {fileID: 2010665609}
+  m_Layer: 0
+  m_Name: PokemonDataPopulator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2010665608
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2010665607}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -36.803844, y: 16.588074, z: -0.33072758}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 12
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2010665609
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2010665607}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3650a49af9b661646a7e1d79cb1d8802, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pokedex: {fileID: 11400000, guid: 45d1503e7715ba24d93a763f3c10333f, type: 2}
