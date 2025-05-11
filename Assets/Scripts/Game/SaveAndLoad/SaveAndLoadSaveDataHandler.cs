@@ -17,7 +17,7 @@ public class SaveAndLoadSaveDataHandler : MonoBehaviour
         string json = SaveAndLoadFileHandler.LoadFromFile(Application.persistentDataPath + path);
         if (json != null)
         {
-            SaveData saveData = JsonSerializer.SerializeFromJSON<SaveData>(json);
+            SaveData saveData = JsonUtility.FromJson<SaveData>(json);
             return saveData;
         }
         else
