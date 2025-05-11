@@ -120,6 +120,7 @@ public class GameManager : MonoBehaviour
     public void ExitToMainMenu()
     {
         GameEnded();
+        gridGenerator.ResetGrid();
         SceneManager.LoadScene("MainMenu");
     }
 
@@ -129,7 +130,6 @@ public class GameManager : MonoBehaviour
     private void GameEnded()
     {
         currentMatchCount = 0;
-        gridGenerator.ResetGrid();
         pointsHandler.GameEnded();
         saveAndLoadSaveDataHandler.DeleteSaveData();
     }
