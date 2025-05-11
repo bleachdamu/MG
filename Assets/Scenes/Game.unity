@@ -1187,7 +1187,7 @@ GameObject:
   - component: {fileID: 955166770}
   - component: {fileID: 955166771}
   m_Layer: 0
-  m_Name: Objectpoolmanager
+  m_Name: GridElementPool
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1217,7 +1217,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 955166769}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f1a5178679a47314ba6f02aea4923446, type: 3}
+  m_Script: {fileID: 11500000, guid: b53d58e351497da408808050d13f7555, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &996771986
