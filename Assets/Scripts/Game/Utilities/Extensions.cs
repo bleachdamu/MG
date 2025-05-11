@@ -10,11 +10,9 @@ public static class Extensions
     /// </summary>
     public static void Shuffle<T>(this IList<T> itemList)
     {
-        var count = itemList.Count;
-        var last = count - 1;
-        for (var i = 0; i < last; ++i)
+        for (var i = 0; i < itemList.Count - 1; ++i)
         {
-            var rnd = Random.Range(i, count);
+            var rnd = Random.Range(i, itemList.Count);
             var tmp = itemList[i];
             itemList[i] = itemList[rnd];
             itemList[rnd] = tmp;
